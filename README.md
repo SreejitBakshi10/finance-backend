@@ -16,19 +16,19 @@
 
 ## Table of Contents
 
-1. [Tech Stack](#tech-stack)
-2. [System Architecture](#system-architecture)
-3. [Setup & Run](#setup--run)
-4. [Project Structure](#project-structure)
-5. [Database Schema](#database-schema)
-6. [API Documentation](#api-documentation)
-7. [Role Permission Matrix](#role-permission-matrix)
-8. [Error Handling](#error-handling)
-9. [Design Decisions & Assumptions](#design-decisions--assumptions)
-10. [Security Measures](#security-measures)
-11. [Optional Enhancements Implemented](#optional-enhancements-implemented)
-12. [License](#license)
-13. [Contact](#contact)
+- [Tech Stack](#tech-stack)
+- [System Architecture](#system-architecture)
+- [Project Structure](#project-structure)
+- [Setup & Run](#setup--run)
+- [Database Schema](#database-schema)
+- [API Documentation](#api-documentation)
+- [Role Permission Matrix](#role-permission-matrix)
+- [Error Handling](#error-handling)
+- [Design Decisions & Assumptions](#design-decisions--assumptions)
+- [Security Measures](#security-measures)
+- [Optional Enhancements Implemented](#optional-enhancements-implemented)
+- [License](#license)
+- [Contact](#contact)
 
 ---
 
@@ -147,34 +147,40 @@ sequenceDiagram
 
 ```
 finance-backend/
+│
 ├── src/
 │   ├── app.js                            # Entry point — Express setup, middleware, routing
 │   ├── config/
 │   │   └── database.js                   # MySQL pool, schema initialisation, admin seed
+│   │
 │   ├── middleware/
 │   │   ├── auth.js                       # JWT verification → populates req.user
 │   │   ├── rbac.js                       # Role-based access guard (requireRole)
 │   │   └── validate.js                   # express-validator error formatter
+│   │
 │   ├── routes/
 │   │   ├── auth.routes.js                # POST /register, POST /login, GET /me
 │   │   ├── users.routes.js               # User CRUD + role/status management
 │   │   ├── transactions.routes.js        # Transaction CRUD with filtering
 │   │   └── dashboard.routes.js           # Summary analytics endpoints
+│   │
 │   ├── services/
 │   │   ├── auth.service.js               # register / login / getMe
 │   │   ├── user.service.js               # User business logic
 │   │   ├── transaction.service.js        # Transaction business logic + soft delete
 │   │   └── dashboard.service.js          # Aggregated analytics queries
+│   │
 │   └── validators/
 │       ├── auth.validator.js             # Register / login validation rules
 │       ├── user.validator.js             # User update / role / status rules
 │       └── transaction.validator.js      # Transaction create / update / list query rules
+│
 ├── seed.js                               # Demo data seeder (run once after first server start)
 ├── .env                                  # Environment variables
 ├── package.json                          # Exact-pinned dependencies, no ^ or ~
 ├── .gitignore                            # Git ignore rules
 ├── README.md                             # This file
-└── License                               # MIT License    
+└── LICENSE                               # MIT License    
 ```
 
 ---
@@ -195,14 +201,14 @@ Follow these steps to run the project locally.
 git clone https://github.com/SreejitBakshi10/finance-backend.git
 ```
 
-### 1. Install dependencies
+### 2. Install dependencies
 
 ```bash
 cd finance-backend
 npm install
 ```
 
-### 2. Configure environment
+### 3. Configure environment
 
 Create a `.env`:
 
@@ -224,7 +230,7 @@ BCRYPT_ROUNDS=10
 
 > `JWT_SECRET` should be a long, random string (minimum 32 characters) in any shared environment.
 
-### 3. Start the server
+### 4. Start the server
 
 ```bash
 npm run dev     # auto-restarts on file changes (nodemon)
@@ -240,7 +246,7 @@ Email: admin@finance.local
 Password: Admin@1234
 ```
 
-### 4. Seed demo data (optional but recommended)
+### 5. Seed demo data (optional but recommended)
 
 After the server has run at least once (tables must exist):
 
@@ -264,7 +270,7 @@ This inserts:
 The seeder is **idempotent** — running it twice skips existing users and skips transaction
 insertion if rows already exist.
 
-### 5. Verify
+### 6. Verify
 
 ```bash
 curl http://localhost:3000/health
@@ -310,36 +316,6 @@ CREATE TABLE transactions (
 
 **Valid categories:** `salary` · `freelance` · `investment` · `food` · `utilities` ·
 `entertainment` · `healthcare` · `transport` · `education` · `other`
-
----
-
-## Role Permission Matrix
-
-| Endpoint / Action | Viewer | Analyst | Admin |
-|---|:---:|:---:|:---:|
-| `POST /api/auth/register` | ✓ | ✓ | ✓ |
-| `POST /api/auth/login` | ✓ | ✓ | ✓ |
-| `GET /api/auth/me` | ✓ | ✓ | ✓ |
-| `GET /api/dashboard/summary` | ✓ | ✓ | ✓ |
-| `GET /api/dashboard/recent-activity` | ✓ | ✓ | ✓ |
-| `GET /api/dashboard/categories` | ✗ | ✓ | ✓ |
-| `GET /api/dashboard/trends/monthly` | ✗ | ✓ | ✓ |
-| `GET /api/dashboard/trends/weekly` | ✗ | ✓ | ✓ |
-| `GET /api/transactions` | ✗ | ✓ | ✓ |
-| `GET /api/transactions/:id` | ✗ | ✓ | ✓ |
-| `POST /api/transactions` | ✗ | ✓ | ✓ |
-| `PUT /api/transactions/:id` | ✗ | ✓ | ✓ |
-| `DELETE /api/transactions/:id` (soft) | ✗ | ✗ | ✓ |
-| `GET /api/users` | ✗ | ✗ | ✓ |
-| `GET /api/users/:id` | self only | self only | ✓ |
-| `PUT /api/users/:id` | self only | self only | ✓ |
-| `PATCH /api/users/:id/role` | ✗ | ✗ | ✓ |
-| `PATCH /api/users/:id/status` | ✗ | ✗ | ✓ |
-| `DELETE /api/users/:id` | ✗ | ✗ | ✓ |
-
-Role enforcement is implemented as a reusable middleware (`requireRole`) using a numeric hierarchy
-(`viewer=0`, `analyst=1`, `admin=2`). A higher-level role automatically satisfies lower-level
-requirements — `requireRole('analyst')` passes for both analyst and admin.
 
 ---
 
@@ -612,6 +588,36 @@ Setting a user to `inactive` immediately blocks their token on the next request.
 DELETE /api/users/:id
 ```
 Returns `204 No Content`. An admin cannot delete their own account (returns `400`).
+
+---
+
+## Role Permission Matrix
+
+| Endpoint / Action | Viewer | Analyst | Admin |
+|---|:---:|:---:|:---:|
+| `POST /api/auth/register` | ✓ | ✓ | ✓ |
+| `POST /api/auth/login` | ✓ | ✓ | ✓ |
+| `GET /api/auth/me` | ✓ | ✓ | ✓ |
+| `GET /api/dashboard/summary` | ✓ | ✓ | ✓ |
+| `GET /api/dashboard/recent-activity` | ✓ | ✓ | ✓ |
+| `GET /api/dashboard/categories` | ✗ | ✓ | ✓ |
+| `GET /api/dashboard/trends/monthly` | ✗ | ✓ | ✓ |
+| `GET /api/dashboard/trends/weekly` | ✗ | ✓ | ✓ |
+| `GET /api/transactions` | ✗ | ✓ | ✓ |
+| `GET /api/transactions/:id` | ✗ | ✓ | ✓ |
+| `POST /api/transactions` | ✗ | ✓ | ✓ |
+| `PUT /api/transactions/:id` | ✗ | ✓ | ✓ |
+| `DELETE /api/transactions/:id` (soft) | ✗ | ✗ | ✓ |
+| `GET /api/users` | ✗ | ✗ | ✓ |
+| `GET /api/users/:id` | self only | self only | ✓ |
+| `PUT /api/users/:id` | self only | self only | ✓ |
+| `PATCH /api/users/:id/role` | ✗ | ✗ | ✓ |
+| `PATCH /api/users/:id/status` | ✗ | ✗ | ✓ |
+| `DELETE /api/users/:id` | ✗ | ✗ | ✓ |
+
+Role enforcement is implemented as a reusable middleware (`requireRole`) using a numeric hierarchy
+(`viewer=0`, `analyst=1`, `admin=2`). A higher-level role automatically satisfies lower-level
+requirements — `requireRole('analyst')` passes for both analyst and admin.
 
 ---
 
